@@ -21,6 +21,39 @@ body{
     background-color: white;
 }
 
+
+.topics{
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background: white;
+    padding: 12px 24px;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 5px;
+}
+
+.topics::-webkit-scrollbar{
+    display: none;
+}
+
+.topic{
+    border: 0;
+    background: #f2f2f2;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font: 500 14px/1 "Roboto", sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.topic.active{
+  background: #0f0f0f;
+  color: #fff;
+}
+
 .navbar .logo{
     display: flex;
     align-items: center;
@@ -100,12 +133,17 @@ body{
     margin-right: 0;
 }
 
+.material-icons.radius{
+    border-radius: 9999px;
+    padding: 8px;
+}
+
 .search button i{
     margin-right: 0;
     padding: 2px;
 }
 
-.material-icons.voice{
+.material-icons-outlined.voice{
     border-radius: 9999px;
     font-size: 30px;
     margin-left: 16px;
@@ -160,13 +198,12 @@ body{
     font-size: 14px;
 }
 
-.account-image{
-    height: 36px;
-    width: 36px;
+.material-icons.account-img{
+    font-size: 36px;
 }
 
 .material-icons.plus{
-  font-size: 30px;
+    font-size: 30px;
 }
 
 .mainbody{
@@ -179,12 +216,33 @@ body{
     width: 240px;
     height: 100%;
     background: white;
-    overflow-y: scroll;
+    overflow-y: auto;
+}
+
+.categories::-webkit-scrollbar {
+    width: 0;
+}
+
+.categories:hover::-webkit-scrollbar {
+    width: 6px;
+}
+
+.categories::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.categories:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .category-section{
     border-bottom:  1px solid #e0e0e0;
     margin-top: 20px;
+}
+
+.material-icons.side-icon{
+    font-size: 28px;
 }
 
 .category-section .category:last-child{
@@ -200,6 +258,13 @@ body{
     font-size: 14px;
     cursor: pointer;
     font-weight: 400;
+}
+
+.subs img{
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    margin-right: 24px;
 }
 
 .category-heading{
@@ -220,17 +285,10 @@ body{
     margin-right: 24px;
 }
 
-.category:hover{
-    background: #f9f9f9;
-}
-
-.active{
-    background: #d0d0d0;
-    font-weight: 500;
-}
-
-.active:hover{
-    background: #d0d0d0;
+.youtube-extra{
+    height: 24px;
+    width: 24px;
+    margin-right: 24px;
 }
 
 .categories-footer{
@@ -268,18 +326,20 @@ body{
 .video-grid{
     display: flex;
     flex-wrap: wrap;
-    padding: 25px;
+    padding: 14px;
+    gap: 15px;
 }
 
 .video{
-    width: calc(25% - 15px);
-    margin-right: 15px;
+    width: calc(33.333% - 15px);
+    margin-right: 0px;
     cursor: pointer;
     margin-bottom: 35px;
 }
 
 .video .thumbnail img{
     width: 100%;
+    border-radius: 8px;
 }
 
 .video .details{
