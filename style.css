@@ -331,12 +331,22 @@ body{
     width: calc(33.333% - 15px);
     margin-right: 0px;
     cursor: pointer;
-    margin-bottom: 35px;
+    margin-bottom: 20px;
+    border-radius: 9px;
+    padding-bottom: 12px;
+}
+
+.video:hover{
+    transition: ease-in-out 0.3s;
+}
+
+.video:hover{
+    background-color: #e7edf8;
 }
 
 .video .thumbnail img{
     width: 100%;
-    border-radius: 8px;
+    border-radius: 12px;
 }
 
 .video .details{
