@@ -41,7 +41,7 @@ body{
 
 .topic{
     border: 0;
-    background: #f2f2f2;
+    background: #e6e6e6;
     padding: 9px 12px;
     border-radius: 8px;
     font: 500 14px/1 "Roboto", sans-serif;
@@ -250,14 +250,16 @@ body{
 }
 
 .category{
-    width: 100%;
+    width: 89%;
     display: flex;
     align-items: center;
     height: 40px;
-    padding: 0 24px;
+    padding: 0px 0px 0px 12px;
     font-size: 14px;
     cursor: pointer;
     font-weight: 400;
+    border-radius: 9px;
+    margin-left: 12px;
 }
 
 .subs img{
@@ -319,7 +321,7 @@ body{
 .videos{
     width: calc(100vw - 240px);
     height: 100%;
-    background:#f9f9f9;
+    background:white;
     overflow-y: scroll;
 }
 
@@ -344,7 +346,7 @@ body{
 
 .video .details{
     display: flex;
-    margin-top: 5px;
+    margin-top: 10px;
     width: 90%;
 }
 
@@ -362,10 +364,101 @@ body{
     font-size: 16px;
     font-weight: 500;
     line-height: 21px;
+    margin-bottom: 5px;
 }
 
 .video .posted-by{
     font-size: 14px;
     font-weight: 500;
     color: #888787;
+}
+
+.video .views-date{
+    margin-top: 5px;
+}
+
+.shorts-shelf{
+  flex: 0 0 100%;
+  margin-left: -14px;
+  margin-right: -14px;
+  margin-bottom: 16px;
+  margin-top: -28px;
+  padding: 18px 14px 22px;
+  background: #fff;
+}
+
+.shorts-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 14px;
+}
+
+.shorts-title{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shorts-title h2{
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.shorts-title .material-icons{
+  font-size: 22px;
+  margin-right: 0;
+  color: #ff0033;
+}
+
+.shorts-row{
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 0 10px 6px;
+}
+
+.short-item{
+  flex: 0 0 auto;
+  width: 310px;           /* bigger like YouTube */
+}
+
+.short-thumb{
+  height: 470px;          /* tall like YouTube */
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+}
+
+.short-thumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.short-text{
+  padding-top: 10px;
+}
+
+.short-text .short-title{
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+
+.short-text .short-views{
+  font-size: 13px;
+  color: #6a6a6a;
+}
+
+.short-thumb:hover{
+  filter: brightness(0.96);
 }
