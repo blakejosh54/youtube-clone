@@ -19,45 +19,14 @@ body{
     position: sticky;
     top: 0;
     background-color: white;
-}
-
-
-.topics{
-    position: sticky;
-    top: 0;
     z-index: 9999;
-    background: white;
-    padding: 12px 24px;
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    margin-bottom: 5px;
-}
-
-.topic{
-    border: 0;
-    background: #e6e6e6;
-    padding: 9px 12px;
-    border-radius: 8px;
-    font: 500 14px/1 "Roboto", sans-serif;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.topic.active{
-    background: #0f0f0f;
-    color: #fff;
 }
 
 .navbar .logo{
     display: flex;
     align-items: center;
-    margin-left: 8px;
-}
-
-.logo img{
-    width: 129px;
-    margin-left: 10px;
+    margin-left: 4px;
+    gap: 14px;
 }
 
 .navbar .searchbar{
@@ -311,7 +280,57 @@ body{
     font-weight: 400;
 }
 
+.topics-wrap{
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background-color: white;
+}
 
+.topics{
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding: 12px 56px 12px 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.topics-arrow{
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    display: grid;
+    place-items: center;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+.topic{
+    border: 0;
+    background: #e6e6e6;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font: 500 14px/1 "Roboto", sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.topics::-webkit-scrollbar{
+    display:none;
+}
+
+.topic.active{
+    background: #0f0f0f;
+    color: #fff;
+}
 
 .videos{
     width: calc(100vw - 240px);
@@ -425,11 +444,11 @@ body{
 
 .short-item{
     flex: 0 0 auto;
-    width: 310px;           /* bigger like YouTube */
+    width: 310px;
 }
 
 .short-thumb{
-    height: 470px;          /* tall like YouTube */
+    height: 470px;
     border-radius: 12px;
     overflow: hidden;
     background: #000;
@@ -466,4 +485,96 @@ body{
 
 .short-thumb:hover{
     filter: brightness(0.96);
+}
+
+
+/* DARK MODE */
+
+body.dark{
+    background:#0f0f0f;
+    color: white;
+    scrollbar-color: #ababab #0f0f0f;
+}
+
+body.dark .navbar,
+body.dark .categories,
+body.dark .videos,
+body.dark .topics-wrap,
+body.dark .shorts-shelf{
+    background:#0f0f0f;
+}
+
+body.dark .category-heading,
+body.dark .video .posted-by,
+body.dark .footer-section span,
+body.dark .copyright,
+body.dark .material-icons,
+body.dark .material-icons-outlined{
+    color:#f1f1f1;
+}
+
+body.dark .category-section{
+    border-bottom:1px solid #3b3b3b;
+}
+
+body.dark .search{
+    background:#121212;
+    border-color:#2a2a2a;
+}
+
+body.dark .search input{
+    color:#f1f1f1;
+}
+
+body.dark .search input::placeholder{
+    color:#888;
+}
+
+body.dark .search button{
+    background:#1f1f1f;
+    border-left-color:#2a2a2a;
+}
+
+body.dark .topic{
+    background:#272727;
+    color:#f1f1f1;
+}
+
+body.dark .topic.active{
+    background:#f1f1f1;
+    color:#0f0f0f;
+}
+
+body.dark .topics-arrow{
+    background-color: #0f0f0f;
+}
+
+body.dark .create-btn,
+body.dark .voice{
+    background:#272727;
+    color:#f1f1f1;
+}
+
+body.dark .video:hover,
+body.dark .hov:hover{
+    background:rgba(235, 235, 235, .1);
+}
+
+body.dark .act:active{
+    background: rgba(255,255,255,.2);
+}
+
+
+body.dark .voice:hover,
+body.dark .create-btn:hover{
+   background-color:  rgb(49, 49, 49);
+}
+
+body.dark .voice:active,
+body.dark .create-btn:active{
+   background-color:  rgb(78, 78, 78);
+}
+
+body.dark .bolt{
+    color: red;
 }
