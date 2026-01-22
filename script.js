@@ -650,3 +650,519 @@ if (document.readyState === 'loading') {
 } else {
   init()
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ============================================================================
+// CONTINUE WATCHING + CLICK-TO-PLAY MODAL (ADD-ON)
+// Paste at bottom of script.js
+// ============================================================================
+
+(function continueWatchingModalFeature() {
+  const STORAGE_KEY = "ytclone_progress_v1";
+  const SAVE_EVERY_MS = 2500;
+
+  /** @returns {Record<string, {t:number, d:number, updated:number}>} */
+  function loadProgressMap() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveProgressMap(map) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+    } catch {
+      // ignore quota / storage errors
+    }
+  }
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function extractYouTubeIdFromThumbUrl(url) {
+    if (!url) return null;
+    // Typical: https://i.ytimg.com/vi/<ID>/hq720.jpg
+    const m = String(url).match(/i\.ytimg\.com\/vi\/([^/]+)\//i);
+    if (m && m[1]) return m[1];
+    // Fallback: look for "vi/<ID>"
+    const m2 = String(url).match(/\/vi\/([^/]+)/i);
+    if (m2 && m2[1]) return m2[1];
+    return null;
+  }
+
+  function ensureProgressBar(containerEl) {
+    if (!containerEl) return null;
+    let barWrap = containerEl.querySelector(".thumb-progress");
+    if (!barWrap) {
+      barWrap = document.createElement("div");
+      barWrap.className = "thumb-progress";
+      barWrap.innerHTML = `<div class="thumb-progress-bar"></div>`;
+      containerEl.appendChild(barWrap);
+    }
+    return barWrap.querySelector(".thumb-progress-bar");
+  }
+
+  function setThumbProgress(containerEl, pct) {
+    const bar = ensureProgressBar(containerEl);
+    if (!bar) return;
+    bar.style.width = `${clamp(pct, 0, 100)}%`;
+    containerEl.querySelector(".thumb-progress").style.display = pct > 1 ? "" : "none";
+  }
+
+  function findCardMeta(cardEl) {
+    const titleEl = cardEl.querySelector(".title-row p") || cardEl.querySelector(".short-title");
+    const channelEl = cardEl.querySelector(".posted-by span");
+    const title = titleEl ? titleEl.textContent.trim() : "Video";
+    const channel = channelEl ? channelEl.textContent.trim() : "";
+    return { title, channel };
+  }
+
+  // ---------------- Modal + YouTube API ----------------
+
+  let overlayEl = null;
+  let ytApiReady = false;
+  let ytPlayer = null;
+  let currentVideoId = null;
+  let saveTimer = null;
+
+  function ensureModal() {
+    if (overlayEl) return overlayEl;
+
+    overlayEl = document.createElement("div");
+    overlayEl.className = "player-modal-overlay";
+    overlayEl.innerHTML = `
+      <div class="player-modal" role="dialog" aria-modal="true" aria-label="Player">
+        <div class="player-modal-header">
+          <div class="player-modal-title">
+            <h3 id="pm-title">Video</h3>
+            <div class="player-meta" id="pm-meta"></div>
+          </div>
+          <div class="player-modal-actions">
+            <button class="pm-btn" type="button" data-action="restart">Start over</button>
+            <button class="pm-btn" type="button" data-action="clear">Clear progress</button>
+            <button class="player-close" type="button" aria-label="Close">
+              <i class="material-icons">close</i>
+            </button>
+          </div>
+        </div>
+        <div class="player-modal-body">
+          <div id="pm-yt"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlayEl);
+
+    const closeBtn = overlayEl.querySelector(".player-close");
+    closeBtn.addEventListener("click", closeModal);
+
+    overlayEl.addEventListener("click", (e) => {
+      if (e.target === overlayEl) closeModal();
+    });
+
+    overlayEl.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+      if (e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        togglePlayPause();
+      }
+    });
+
+    overlayEl.querySelector('[data-action="restart"]').addEventListener("click", () => {
+      if (!currentVideoId) return;
+      clearProgress(currentVideoId);
+      openModalForVideo(currentVideoId, { start: 0, force: true });
+    });
+
+    overlayEl.querySelector('[data-action="clear"]').addEventListener("click", () => {
+      if (!currentVideoId) return;
+      clearProgress(currentVideoId);
+      closeModal();
+      refreshAllThumbProgress();
+    });
+
+    return overlayEl;
+  }
+
+  function loadYouTubeIframeApiOnce() {
+    if (window.YT && window.YT.Player) {
+      ytApiReady = true;
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      const existing = document.querySelector('script[data-yt-iframe-api="true"]');
+      if (existing) {
+        const check = setInterval(() => {
+          if (window.YT && window.YT.Player) {
+            clearInterval(check);
+            ytApiReady = true;
+            resolve();
+          }
+        }, 50);
+        return;
+      }
+
+      window.onYouTubeIframeAPIReady = function () {
+        ytApiReady = true;
+        resolve();
+      };
+
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      tag.async = true;
+      tag.defer = true;
+      tag.dataset.ytIframeApi = "true";
+      document.head.appendChild(tag);
+
+      // Safety fallback: resolve after a bit even if callback fails
+      setTimeout(() => resolve(), 2500);
+    });
+  }
+
+  function destroyPlayer() {
+    if (saveTimer) {
+      clearInterval(saveTimer);
+      saveTimer = null;
+    }
+    if (ytPlayer && typeof ytPlayer.destroy === "function") {
+      try { ytPlayer.destroy(); } catch {}
+    }
+    ytPlayer = null;
+    currentVideoId = null;
+    const mount = document.getElementById("pm-yt");
+    if (mount) mount.innerHTML = "";
+  }
+
+  function togglePlayPause() {
+    if (!ytPlayer || !ytApiReady) return;
+    try {
+      const state = ytPlayer.getPlayerState();
+      // 1 playing, 2 paused
+      if (state === 1) ytPlayer.pauseVideo();
+      else ytPlayer.playVideo();
+    } catch {
+      // ignore
+    }
+  }
+
+  function closeModal() {
+    if (!overlayEl) return;
+    overlayEl.classList.remove("active");
+    document.body.style.overflow = "";
+    destroyPlayer();
+  }
+
+  function openModalForVideo(videoId, opts = {}) {
+    const { start = null, force = false } = opts;
+
+    const overlay = ensureModal();
+    overlay.classList.add("active");
+    overlay.tabIndex = -1;
+    overlay.focus({ preventScroll: true });
+    document.body.style.overflow = "hidden";
+
+    const map = loadProgressMap();
+    const saved = map[videoId];
+    const startTime = force ? (start ?? 0) : (start ?? (saved?.t ?? 0));
+
+    // Title/meta
+    const anyCard = document.querySelector(`[data-video-id="${CSS.escape(videoId)}"]`);
+    const { title, channel } = anyCard ? findCardMeta(anyCard) : { title: "Video", channel: "" };
+    overlay.querySelector("#pm-title").textContent = title;
+    overlay.querySelector("#pm-meta").textContent = channel ? channel : " ";
+
+    destroyPlayer();
+    currentVideoId = videoId;
+
+    loadYouTubeIframeApiOnce().then(() => {
+      const mount = document.getElementById("pm-yt");
+      if (!mount) return;
+
+      // If API still not ready, fallback to simple iframe (no resume tracking)
+      if (!(window.YT && window.YT.Player)) {
+        mount.innerHTML = `
+          <iframe
+            src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1&start=${Math.floor(startTime)}&playsinline=1&rel=0"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        `;
+        return;
+      }
+
+      ytPlayer = new window.YT.Player("pm-yt", {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          start: Math.max(0, Math.floor(startTime)),
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: () => {
+            // Start periodic saving
+            if (saveTimer) clearInterval(saveTimer);
+            saveTimer = setInterval(() => saveCurrentProgress(), SAVE_EVERY_MS);
+          },
+          onStateChange: () => {
+            // Save once on pause/end as well
+            saveCurrentProgress();
+          }
+        }
+      });
+    });
+  }
+
+  function saveCurrentProgress() {
+    if (!ytPlayer || !currentVideoId || !(window.YT && window.YT.Player)) return;
+
+    try {
+      const d = ytPlayer.getDuration?.() ?? 0;
+      const t = ytPlayer.getCurrentTime?.() ?? 0;
+      if (!d || d < 20) return;
+      if (t < 2) return;
+
+      const map = loadProgressMap();
+      map[currentVideoId] = { t, d, updated: Date.now() };
+      saveProgressMap(map);
+
+      // Update thumb bar live
+      refreshThumbProgressForId(currentVideoId, map[currentVideoId]);
+    } catch {
+      // ignore
+    }
+  }
+
+  function clearProgress(videoId) {
+    const map = loadProgressMap();
+    if (map[videoId]) {
+      delete map[videoId];
+      saveProgressMap(map);
+    }
+  }
+
+  // ---------------- Context menu on "more" buttons ----------------
+
+  let moreMenuEl = null;
+  let moreMenuForId = null;
+
+  function ensureMoreMenu() {
+    if (moreMenuEl) return moreMenuEl;
+    moreMenuEl = document.createElement("div");
+    moreMenuEl.className = "more-menu";
+    moreMenuEl.innerHTML = `
+      <div class="mm-item" data-mm="resume"><i class="material-icons">play_arrow</i><span>Resume</span></div>
+      <div class="mm-item" data-mm="startover"><i class="material-icons">replay</i><span>Start over</span></div>
+      <div class="mm-item" data-mm="clear"><i class="material-icons">delete</i><span>Clear progress</span></div>
+      <div class="mm-item" data-mm="copy"><i class="material-icons">link</i><span>Copy YouTube link</span></div>
+    `;
+    document.body.appendChild(moreMenuEl);
+
+    moreMenuEl.addEventListener("click", async (e) => {
+      const item = e.target.closest(".mm-item");
+      if (!item || !moreMenuForId) return;
+
+      const action = item.dataset.mm;
+      if (action === "resume") {
+        openModalForVideo(moreMenuForId);
+      } else if (action === "startover") {
+        clearProgress(moreMenuForId);
+        openModalForVideo(moreMenuForId, { start: 0, force: true });
+      } else if (action === "clear") {
+        clearProgress(moreMenuForId);
+        refreshAllThumbProgress();
+      } else if (action === "copy") {
+        const url = `https://www.youtube.com/watch?v=${moreMenuForId}`;
+        try {
+          await navigator.clipboard.writeText(url);
+        } catch {
+          // fallback
+          const ta = document.createElement("textarea");
+          ta.value = url;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+      }
+
+      hideMoreMenu();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".more-menu") && !e.target.closest(".more-btn")) hideMoreMenu();
+    });
+
+    window.addEventListener("resize", hideMoreMenu);
+
+    return moreMenuEl;
+  }
+
+  function showMoreMenu(buttonEl, videoId) {
+    const menu = ensureMoreMenu();
+    const rect = buttonEl.getBoundingClientRect();
+    const padding = 8;
+
+    moreMenuForId = videoId;
+    menu.classList.add("active");
+
+    const left = clamp(rect.right - 220, padding, window.innerWidth - 220 - padding);
+    const top = clamp(rect.bottom + 8, padding, window.innerHeight - 180 - padding);
+
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+
+    // Disable Resume if no progress yet
+    const map = loadProgressMap();
+    const has = !!map[videoId];
+    const resumeItem = menu.querySelector('[data-mm="resume"]');
+    const clearItem = menu.querySelector('[data-mm="clear"]');
+    resumeItem.style.opacity = has ? "1" : "0.45";
+    clearItem.style.opacity = has ? "1" : "0.45";
+    resumeItem.style.pointerEvents = has ? "" : "none";
+    clearItem.style.pointerEvents = has ? "" : "none";
+  }
+
+  function hideMoreMenu() {
+    if (!moreMenuEl) return;
+    moreMenuEl.classList.remove("active");
+    moreMenuForId = null;
+  }
+
+  // ---------------- Bind cards + progress bars ----------------
+
+  function attachVideoCardHandlers() {
+    const allVideoCards = document.querySelectorAll(".video");
+    const allShortCards = document.querySelectorAll(".short-item");
+
+    // Videos
+    allVideoCards.forEach((card) => {
+      if (card.dataset.pmBound === "true") return;
+
+      const img = card.querySelector(".thumbnail img");
+      const id = extractYouTubeIdFromThumbUrl(img?.getAttribute("src"));
+      if (!id) return;
+
+      card.dataset.videoId = id;
+      card.dataset.pmBound = "true";
+
+      // Click on thumbnail/title opens modal
+      const openTargets = [
+        card.querySelector(".thumbnail"),
+        card.querySelector(".title-row p")
+      ].filter(Boolean);
+
+      openTargets.forEach((t) => {
+        t.addEventListener("click", (e) => {
+          // Don't hijack "more" button clicks
+          if (e.target.closest(".more-btn")) return;
+          openModalForVideo(id);
+        });
+      });
+
+      // More menu
+      const moreBtn = card.querySelector(".more-btn");
+      if (moreBtn) {
+        moreBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          showMoreMenu(moreBtn, id);
+        });
+      }
+    });
+
+    // Shorts
+    allShortCards.forEach((card) => {
+      if (card.dataset.pmBound === "true") return;
+
+      const img = card.querySelector(".short-thumb img");
+      const id = extractYouTubeIdFromThumbUrl(img?.getAttribute("src"));
+      if (!id) return;
+
+      card.dataset.videoId = id;
+      card.dataset.pmBound = "true";
+
+      const thumb = card.querySelector(".short-thumb");
+      if (thumb) {
+        thumb.addEventListener("click", () => openModalForVideo(id));
+      }
+    });
+
+    refreshAllThumbProgress();
+  }
+
+  function refreshThumbProgressForId(videoId, data) {
+    const pct = data?.d ? (data.t / data.d) * 100 : 0;
+    const cards = document.querySelectorAll(`[data-video-id="${CSS.escape(videoId)}"]`);
+    cards.forEach((card) => {
+      const isShort = card.classList.contains("short-item");
+      const container = isShort ? card.querySelector(".short-thumb") : card.querySelector(".thumbnail");
+      if (container) setThumbProgress(container, pct);
+    });
+  }
+
+  function refreshAllThumbProgress() {
+    const map = loadProgressMap();
+
+    // Reset all first
+    document.querySelectorAll(".video .thumbnail, .short-item .short-thumb").forEach((c) => {
+      setThumbProgress(c, 0);
+    });
+
+    Object.entries(map).forEach(([id, data]) => refreshThumbProgressForId(id, data));
+  }
+
+  // ---------------- Init ----------------
+
+  function init() {
+    ensureModal();
+    attachVideoCardHandlers();
+
+    // If your page dynamically changes later, this keeps it robust
+    const mo = new MutationObserver(() => attachVideoCardHandlers());
+    mo.observe(document.body, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
