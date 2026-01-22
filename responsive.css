@@ -156,6 +156,10 @@
     .search-toggle{
         display: inline-flex;
 }
+
+    .mobile-search-overlay{
+        display: flex;
+    }
 }
 
 @media (max-width: 860px) {
