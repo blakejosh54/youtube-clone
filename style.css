@@ -29,6 +29,11 @@ body{
     gap: 14px;
 }
 
+.yt-icon{
+    width: 90px;
+    height: auto;
+}
+
 .navbar .searchbar{
     display: flex;
     height: 40px;
@@ -47,6 +52,14 @@ body{
     overflow: hidden;
     position: relative;
     isolation: isolate;
+}
+
+.search-toggle{
+    display: none;
+}
+
+.phone{
+    display: none;
 }
 
 .search:focus-within::after{
@@ -112,6 +125,7 @@ body{
     font-size: 30px;
     margin-left: 16px;
     padding: 6px;
+    cursor: pointer;
 }
 
 .navigation-icons{
@@ -176,33 +190,32 @@ body{
     overflow: hidden;
 }
 
+.category .mini-label{
+    display: none;
+}
+
+.category.mini{
+    display: none;
+}
+
+
 .categories{
     width: 240px;
     height: 100%;
     background: white;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
 }
 
-.categories::-webkit-scrollbar {
-    width: 0;
-}
-
-.categories:hover::-webkit-scrollbar {
-    width: 6px;
-}
-
-.categories::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
-}
-
-.categories:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.5);
+.categories:hover {
+  scrollbar-color: #ababab transparent;
 }
 
 .category-section{
     border-bottom:  1px solid #e0e0e0;
     margin-top: 20px;
+    padding-bottom: 10px;
 }
 
 .material-icons.side-icon{
@@ -280,22 +293,47 @@ body{
     font-weight: 400;
 }
 
+.content{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
 .topics-wrap{
     position: sticky;
     top: 0;
-    z-index: 9999;
+    z-index: 20;
     background-color: white;
+    overflow: hidden;
 }
 
 .topics{
     position: relative;
     display: flex;
     gap: 12px;
-    padding: 12px 56px 12px 24px;
+    padding: 12px 72px 12px 24px;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
     scrollbar-width: none;
+}
+
+.topics::-webkit-scrollbar{
+    display: none;
+}
+
+.topics-wrap::after{
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 84px;
+    pointer-events: none;
+    z-index: 4;
+    background: linear-gradient(to left, #fff 55%, rgba(255,255,255,0));
 }
 
 .topics-arrow{
@@ -308,6 +346,7 @@ body{
     border-radius: 9999px;
     display: grid;
     place-items: center;
+    z-index: 5;
     background: rgba(255,255,255,0.95);
     box-shadow: 0 1px 4px rgba(0,0,0,0.18);
 }
@@ -323,9 +362,6 @@ body{
     scrollbar-width: none;
 }
 
-.topics::-webkit-scrollbar{
-    display:none;
-}
 
 .topic.active{
     background: #0f0f0f;
@@ -333,10 +369,12 @@ body{
 }
 
 .videos{
-    width: calc(100vw - 240px);
+    width: 100%;
     height: 100%;
     background:white;
-    overflow-y: scroll;
+    overflow-y: auto;
+    min-height: 0;
+    flex: 1;
 }
 
 .video-grid{
@@ -402,20 +440,21 @@ body{
 }
 
 .shorts-shelf{
-    flex: 0 0 100%;
     margin-left: -14px;
     margin-right: -14px;
     margin-bottom: 16px;
     margin-top: -28px;
     padding: 18px 14px 22px;
     background: #fff;
+    flex: 0 0 100%;
+    width: 100%;
 }
 
 .shorts-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px 14px;
+    padding: 0 0px 14px;
 }
 
 .shorts-title{
@@ -438,19 +477,17 @@ body{
 .shorts-row{
     display: flex;
     gap: 16px;
-    overflow-x: auto;
     padding: 0 10px 6px;
 }
 
 .short-item{
     flex: 0 0 auto;
-    width: 310px;
+    width: 19.4%;
 }
 
 .short-thumb{
     height: 470px;
     border-radius: 12px;
-    overflow: hidden;
     background: #000;
     cursor: pointer;
 }
@@ -460,6 +497,7 @@ body{
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: 9px;
 }
 
 .short-text{
@@ -475,7 +513,6 @@ body{
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
-    overflow: hidden;
 }
 
 .short-text .short-views{
@@ -485,6 +522,10 @@ body{
 
 .short-thumb:hover{
     filter: brightness(0.96);
+}
+
+.themeToggle.phone {
+  display: none;
 }
 
 
@@ -577,4 +618,12 @@ body.dark .create-btn:active{
 
 body.dark .bolt{
     color: red;
+}
+
+body.dark .topics-wrap{
+    background: #0f0f0f;
+}
+
+body.dark .topics-wrap::after{
+    background: linear-gradient(to left, #0f0f0f 55%, rgba(15,15,15,0));
 }

@@ -29,7 +29,10 @@
             <i class="material-icons-outlined voice hov act">keyboard_voice</i>
         </div>
 
-         <div class="navigation-icons">
+        <div class="navigation-icons">
+          <button class="icon-btn hov act search-toggle" type="button" aria-label="Search">
+          <i class="material-icons" aria-hidden="true">search</i>
+          </button>
         <button class="create-btn hov act" type="button">
           <span class="material-icons plus">add</span>
           <span>Create</span>
@@ -37,6 +40,15 @@
         <button class="icon-btn hov act" type="button" aria-label="Notifications">
           <i class="material-icons-outlined" aria-hidden="true">notifications</i>
         </button>
+
+
+
+        <button class="icon-btn hov act themeToggle phone" type="button" aria-label="Theme">
+          <i class="material-icons-outlined" aria-hidden="true">dark_mode</i>
+        </button>
+
+
+
         <button class="icon-btn" type="button" aria-label="Account">
           <i class="material-icons account-img">account_circle</i>
         </button>
@@ -46,20 +58,52 @@
     <div class="mainbody">
       <div class="categories">
 
-        <div class="category-section">
+          <div class="category-section mini-sect">
 
-          <span class="category hov act">
+          <span class="category hov act mini">
             <i class="material-icons-round">home</i>
-            Home
+            <span class="mini-label">Home</span>
           </span>
 
-          <span class="category hov act">
-            <i class="material-icons">subscriptions</i>
-            Shorts
+          <span class="category hov act big">
+            <i class="material-icons-round">home</i>
+            <span>Home</span>
           </span>
+
+          <span class="category hov act mini">
+            <i class="material-icons-outlined">play_arrow</i>
+            <span class="mini-label">Shorts</span>
+          </span>
+
+          <span class="category hov act mini">
+            <i class="material-icons-outlined">subscriptions</i>
+            <span class="mini-label">Subscriptions</span>
+          </span>
+
+          <span class="category hov act big">
+            <i class="material-icons-outlined">subscriptions</i>
+            <span>Shorts</span>
+          </span>
+
+          <span class="category hov act mini">
+            <i class="material-icons-outlined">account_circle</i>
+            <span class="mini-label">You</span>
+          </span>
+
+          <span class="category hov act big themeToggle">
+            <i class="material-icons-outlined side-icon">dark_mode</i>
+            <span>Theme</span>
+          </span>
+
+          <span class="category hov act mini themeToggle">
+            <i class="material-icons-outlined side-icon">dark_mode</i>
+            <span class="mini-label">Theme</span>
+          </span>
+
         </div>
 
-        <div class="category-section">
+
+        <div class="category-section res">
           
           <p class="category-heading">Subscriptions <span class="material-icons arrow">arrow_forward_ios</span></p>
           <div class="subs category hov act">
@@ -103,7 +147,7 @@
           </span>
         </div>
 
-        <div class="category-section">
+        <div class="category-section res">
 
           <p class="category-heading">You <span class="material-icons arrow">arrow_forward_ios</span></p>
           
@@ -138,7 +182,7 @@
           </span>
         </div>
 
-        <div class="category-section">
+        <div class="category-section res">
 
           <p class="category-heading">Explore</p>
           <span class="category hov act">
@@ -162,7 +206,7 @@
           </span>
         </div>
 
-        <div class="category-section">
+        <div class="category-section res">
           
           <p class="category-heading">More from YouTube</p>
           <span class="category hov act">
@@ -186,7 +230,7 @@
           </span>
         </div>
 
-        <div class="category-section">
+        <div class="category-section res">
           
           <span class="category hov act">
             <i class="material-icons-outlined side-icon">settings</i>
@@ -206,11 +250,6 @@
           <span class="category hov act">
             <i class="material-icons-outlined side-icon">feedback</i>
             Send Feedback
-          </span>
-
-          <span class="category hov act" id="themeToggle">
-            <i class="material-icons-outlined side-icon">dark_mode</i>
-            Theme
           </span>
         </div>
 
@@ -239,7 +278,7 @@
 
       </div>
 
-      <div class="videos">
+      <div class="content">
         <div class="topics-wrap">
           <div class="topics">
             <button class="topic active act">All</button>
@@ -266,8 +305,9 @@
             <span class="material-icons">chevron_right</span>
           </div>
         </div>
-        
-        <div class="video-grid">
+
+        <div class="videos"> 
+          <div class="video-grid">
 
           <div class="video">
             <div class="thumbnail">
@@ -278,7 +318,7 @@
                 <img alt="" class="ytCoreImageHost yt-spec-avatar-shape__image ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleToFill ytCoreImageLoaded" src="https://yt3.ggpht.com/MtzRxWv_pU2_xzCZEgN0xiHD8P4mGIiwm33JbN5XHwLS2gKLCxdMgz6a14e1ac-YS68WGM0G=s68-c-k-c0x00ffffff-no-rj">
               </div>
               <div class="video-details">
-                <p>Lancer EVO From hell! Spitting Flames // Nurburgring</p>
+                <p>Lancer EVO From hell! // Nurburgring</p>
                 <div class="posted-by">
                   <span>Misha Charoudin</span>
                   <div class="views-date">
@@ -300,7 +340,7 @@
                 <img alt="" class="ytCoreImageHost yt-spec-avatar-shape__image ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleToFill ytCoreImageLoaded" src="https://yt3.ggpht.com/-PtulUvAuaVV3-Wqix3BuogI8ql9c5braOWPScH1KKf0V0-DeSv-h2rZpi7K9K_kYpw33zH9=s68-c-k-c0x00ffffff-no-rj">
               </div>
               <div class="video-details">
-                <p>Why Koenigsegg's New 2300HP Hypercar Changes Everything</p>
+                <p>Koenigsegg's New 2300HP Hypercar</p>
                 <div class="posted-by">
                   <span>carwow</span>
                   <div class="views-date">
@@ -355,7 +395,7 @@
                   <img alt="" class="ytCoreImageHost ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleAspectFill ytCoreImageLoaded" src="https://i.ytimg.com/vi/d66WWQPU14s/oar2.jpg?sqp=-oaymwEdCJUDENAFSFWQAgHyq4qpAwwIARUAAIhCcAHAAQY=rs=AOn4CLBXwyEpGZTA5S1WLca8MdVZhgNL-g">
                 </div>
                 <div class="short-text">
-                  <div class="short-title">Lots of crashes on the Nurburgring today!</div>
+                  <div class="short-title">Crashes on the Nurburgring!</div>
                   <div class="short-views">220K views</div>
                 </div>
             </div>
@@ -365,7 +405,7 @@
               <img alt="" class="ytCoreImageHost ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleAspectFill ytCoreImageLoaded" src="https://i.ytimg.com/vi/pNu8JxDemNw/oardefault.jpg?sqp=-oaymwEoCJUDENAFSFqQAgHyq4qpAxcIARUAAIhC2AEB4gEKCBgQAhgGOAFAAQ==rs=AOn4CLCQaJ4y_9TbeOx-XkghwH7w3ttbIw">
               </div>
               <div class="short-text">
-                       <div class="short-title">can a solid Aluminum cube cool a CPU?</div>
+                       <div class="short-title">Aluminum cube cooling?</div>
                 <div class="short-views">3.9M views</div>
               </div>
             </div>
@@ -394,7 +434,7 @@
                 <img alt="" class="ytCoreImageHost ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleAspectFill ytCoreImageLoaded" src="https://i.ytimg.com/vi/_CFGnqdB8GI/oardefault.jpg?sqp=-oaymwEoCJUDENAFSFqQAgHyq4qpAxcIARUAAIhC2AEB4gEKCBgQAhgGOAFAAQ==rs=AOn4CLDX4XgsgdUVh2Vn1VIuRL6BOLjqBw">
               </div>
               <div class="short-text">
-                <div class="short-title">The new 992 GT3 is still incredible despite all EU regulations</div>
+                <div class="short-title">The new 992 GT3 is incredible!</div>
                 <div class="short-views">153K views</div>
               </div>
             </div>
@@ -456,7 +496,7 @@
                <img alt="" class="ytCoreImageHost yt-spec-avatar-shape__image ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleToFill ytCoreImageLoaded" src="https://yt3.ggpht.com/ytc/AIdro_nY1cqBj5ocAVUEITW9J49uiE5INaZm7HSoEl7MiF6OzkA=s68-c-k-c0x00ffffff-no-rj">
               </div>
               <div class="video-details">
-                <p>Surprising our SUBSCRIBER with HIS DREAM CAR BUILD! (Full Transformation) 2015 Honda Civic Si</p>
+                <p>Surprising our SUBSCRIBER with HIS DREAM CAR BUILD!</p>
                 <div class="posted-by">
                   <span>trhotl</span>
                   <div class="views-date">
@@ -500,7 +540,7 @@
                <img alt="" class="ytCoreImageHost yt-spec-avatar-shape__image ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleToFill ytCoreImageLoaded" src="https://yt3.ggpht.com/aCPFASgIeRVCvGkhxwj5x-Bzdy8zcONH5HFlLNqtBcPiRH74IEd1Hw2soFNB6QgP4wz5QwE9=s68-c-k-c0x00ffffff-no-rj">
               </div>
               <div class="video-details">
-                <p>Bruno did it again | Bruno Mars - I just might (REACTION!)</p>
+                <p>Bruno did it again | Bruno Mars - I just might</p>
                 <div class="posted-by">
                   <span>No Life Shaq</span>
                   <div class="views-date">
@@ -654,7 +694,7 @@
                 <img alt="" class="ytCoreImageHost yt-spec-avatar-shape__image ytCoreImageFillParentHeight ytCoreImageFillParentWidth ytCoreImageContentModeScaleToFill ytCoreImageLoaded" src="https://yt3.ggpht.com/MtzRxWv_pU2_xzCZEgN0xiHD8P4mGIiwm33JbN5XHwLS2gKLCxdMgz6a14e1ac-YS68WGM0G=s68-c-k-c0x00ffffff-no-rj">
               </div>
               <div class="video-details">
-                <p>EPIC CHASE: Manthey 992 GT3 RS, Viper & SSR Porsche // Nurburgring</p>
+                <p>Manthey 992 GT3 RS // Nurburgring</p>
                 <div class="posted-by">
                   <span>Misha Charoudin</span>
                   <div class="views-date">
@@ -666,8 +706,10 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
       </div>
+    </div>
 
       <script src="script.js"></script>
   </body>
