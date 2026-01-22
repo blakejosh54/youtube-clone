@@ -409,7 +409,7 @@ body{
 .video .details{
     display: flex;
     margin-top: 10px;
-    width: 90%;
+    width: 100%;
 }
 
 .video .profile{
@@ -427,6 +427,31 @@ body{
     font-weight: 500;
     line-height: 21px;
     margin-bottom: 5px;
+}
+
+.video .video-details{
+    flex: 1;
+    min-width: 0;
+}
+
+.title-row{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.title-row p{
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.more-btn{
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    margin-right: -14px;
 }
 
 .video .posted-by{
