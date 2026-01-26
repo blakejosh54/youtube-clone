@@ -1,3 +1,4 @@
+// theme change
 const themeButtons = document.querySelectorAll(".themeToggle")
 
 if (localStorage.getItem("theme") === "dark") {
@@ -12,34 +13,21 @@ themeButtons.forEach((btn) => {
   })
 })
 
-// ============================================================================
-// SMART SEARCH + SUGGESTIONS + FILTERED RESULTS FEATURE
-// ============================================================================
-
-/**
- * SEARCH INDEX BUILDING
- * Scans page content once on load and builds a searchable index
- */
+//search
 let searchIndex = []
 let shortsIndex = []
 let topicsList = []
 
 function buildSearchIndex() {
-  // Index all video cards
   const videos = document.querySelectorAll('.video')
   searchIndex = Array.from(videos).map(video => {
     const titleEl = video.querySelector('.title-row p')
     const channelEl = video.querySelector('.posted-by span')
     const viewsDateEl = video.querySelector('.views-date')
-    
     const title = titleEl ? titleEl.textContent.trim() : ''
     const channel = channelEl ? channelEl.textContent.trim() : ''
     const meta = viewsDateEl ? viewsDateEl.textContent.trim() : ''
-    
-    // Store original HTML for restoration
     const originalTitleHTML = titleEl ? titleEl.innerHTML : ''
-    
-    // Create normalized search text
     const normalizedText = `${title} ${channel} ${meta}`.toLowerCase()
       .replace(/\s+/g, ' ')
       .trim()
@@ -54,8 +42,7 @@ function buildSearchIndex() {
       titleElement: titleEl
     }
   })
-  
-  // Index all shorts
+
   const shorts = document.querySelectorAll('.short-item')
   shortsIndex = Array.from(shorts).map(short => {
     const titleEl = short.querySelector('.short-title')
@@ -69,8 +56,7 @@ function buildSearchIndex() {
       originalTitleHTML: titleEl ? titleEl.innerHTML : ''
     }
   })
-  
-  // Index topics
+
   const topics = document.querySelectorAll('.topic')
   topicsList = Array.from(topics).map(topic => ({
     text: topic.textContent.trim(),
@@ -78,10 +64,6 @@ function buildSearchIndex() {
     element: topic
   }))
 }
-
-// ============================================================================
-// SUGGESTIONS DROPDOWN
-// ============================================================================
 
 let suggestionsDropdown = null
 let activeSuggestionIndex = -1
@@ -106,8 +88,7 @@ function getSuggestions(query) {
   
   const normalizedQuery = query.toLowerCase().trim()
   const suggestions = []
-  
-  // Priority 1: Title matches
+
   searchIndex.forEach(item => {
     if (item.normalizedText.includes(normalizedQuery)) {
       const matchType = item.title.toLowerCase().includes(normalizedQuery) ? 'title' : 'channel'
@@ -119,8 +100,7 @@ function getSuggestions(query) {
       })
     }
   })
-  
-  // Priority 2: Channel matches (if not already added)
+
   searchIndex.forEach(item => {
     if (item.channel.toLowerCase().includes(normalizedQuery)) {
       const exists = suggestions.some(s => s.text === item.channel && s.type === 'Channel')
@@ -135,7 +115,6 @@ function getSuggestions(query) {
     }
   })
   
-  // Priority 3: Topic matches
   topicsList.forEach(topic => {
     if (topic.normalizedText.includes(normalizedQuery)) {
       suggestions.push({
@@ -147,7 +126,6 @@ function getSuggestions(query) {
     }
   })
   
-  // Remove duplicates and limit to 8
   const unique = []
   const seen = new Set()
   for (const sug of suggestions) {
@@ -164,18 +142,15 @@ function getSuggestions(query) {
 function renderSuggestions(query, inputElement) {
   const suggestions = getSuggestions(query)
   
-  // Find the form that owns this input
   const form = inputElement?.closest('form')
   if (!form) return
   
-  // Create or get dropdown for this specific form
   let dropdown = form.querySelector('.search-suggestions')
   if (!dropdown) {
     dropdown = createSuggestionsDropdown()
     form.appendChild(dropdown)
   }
   
-  // Update global reference to current active dropdown
   suggestionsDropdown = dropdown
   
   dropdown.innerHTML = ''
@@ -253,30 +228,23 @@ function selectActiveSuggestion() {
   }
 }
 
-// ============================================================================
-// SEARCH INPUT HANDLING
-// ============================================================================
-
 let currentSearchQuery = ''
 let resultsStatusEl = null
 
 /**
- * Sets up event handlers for a search form (idempotent)
- * @param {HTMLElement} formEl - The form element to set up
+ * Sets up event handlers for search form
+ * @param {HTMLElement} formEl
  */
 function setupSearchForm(formEl) {
   if (!formEl) return
-  
-  // Check if already bound (idempotent)
+
   if (formEl.dataset.searchBound === 'true') return
   
   const input = formEl.querySelector('input')
   if (!input) return
-  
-  // Mark as bound
+
   formEl.dataset.searchBound = 'true'
   
-  // Input event with debounce
   input.addEventListener('input', (e) => {
     const query = e.target.value.trim()
     
@@ -295,15 +263,13 @@ function setupSearchForm(formEl) {
     }, 150)
   })
   
-  // Focus event
   input.addEventListener('focus', () => {
     const query = input.value.trim()
     if (query.length > 0) {
       renderSuggestions(query, input)
     }
   })
-  
-  // Keyboard navigation
+
   input.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -342,21 +308,18 @@ function setupSearchForm(formEl) {
     }
   })
   
-  // Form submit handler
   formEl.addEventListener('submit', (e) => {
     e.preventDefault()
     const query = input.value.trim()
     if (query) {
       performSearch(query)
       hideSuggestions()
-      // Close mobile search if this is the mobile form
       if (formEl.classList.contains('mobile-search')) {
         closeMobileSearch()
       }
     }
   })
   
-  // Click outside to close (set up once globally)
   if (!window.searchClickHandlerSet) {
     document.addEventListener('click', (e) => {
       const clickedInSearch = e.target.closest('.search, .mobile-search')
@@ -369,19 +332,12 @@ function setupSearchForm(formEl) {
 }
 
 function initializeSearchInput() {
-  // Set up desktop search form (if it exists)
   const desktopForm = document.querySelector('form.search')
   if (desktopForm) {
     setupSearchForm(desktopForm)
   }
-  
-  // Do NOT set up mobile form here - it doesn't exist yet
-  // It will be set up when createMobileSearchOverlay() is called
-}
 
-// ============================================================================
-// FILTERING AND HIGHLIGHTING
-// ============================================================================
+}
 
 function highlightMatch(text, query) {
   if (!query) return text
@@ -400,7 +356,6 @@ function performSearch(query) {
     return
   }
   
-  // Filter videos
   let visibleCount = 0
   searchIndex.forEach(item => {
     const matches = item.normalizedText.includes(normalizedQuery)
@@ -408,19 +363,17 @@ function performSearch(query) {
     
     if (matches) {
       visibleCount++
-      // Highlight title
       if (item.titleElement && item.title.toLowerCase().includes(normalizedQuery)) {
         item.titleElement.innerHTML = highlightMatch(item.title, normalizedQuery)
       }
     } else {
-      // Restore original if hidden
+
       if (item.titleElement) {
         item.titleElement.innerHTML = item.originalTitleHTML
       }
     }
   })
   
-  // Filter shorts
   let shortsVisibleCount = 0
   const shortsShelf = document.querySelector('.shorts-shelf')
   
@@ -429,7 +382,6 @@ function performSearch(query) {
     short.element.style.display = matches ? '' : 'none'
     if (matches) {
       shortsVisibleCount++
-      // Highlight short title
       if (short.titleElement && short.title.toLowerCase().includes(normalizedQuery)) {
         short.titleElement.innerHTML = highlightMatch(short.title, normalizedQuery)
       }
@@ -440,7 +392,6 @@ function performSearch(query) {
     }
   })
   
-  // Hide shorts shelf if no matches
   if (shortsShelf) {
     if (shortsVisibleCount === 0) {
       shortsShelf.style.display = 'none'
@@ -449,16 +400,13 @@ function performSearch(query) {
     }
   }
   
-  // Show results status
   showResultsStatus(visibleCount, query)
   
-  // Update all search inputs (safely handle both desktop and mobile)
   const allSearchInputs = document.querySelectorAll('.search input, .mobile-search input')
   allSearchInputs.forEach(input => {
     if (input) input.value = query
   })
   
-  // Close mobile search if open
   closeMobileSearch()
 }
 
@@ -466,7 +414,6 @@ function clearSearch() {
   currentSearchQuery = ''
   localStorage.removeItem('lastSearch')
   
-  // Show all videos
   searchIndex.forEach(item => {
     item.element.style.display = ''
     if (item.titleElement) {
@@ -474,7 +421,6 @@ function clearSearch() {
     }
   })
   
-  // Show all shorts
   shortsIndex.forEach(short => {
     short.element.style.display = ''
     if (short.titleElement) {
@@ -486,11 +432,9 @@ function clearSearch() {
   if (shortsShelf) {
     shortsShelf.style.display = ''
   }
-  
-  // Hide results status
+
   hideResultsStatus()
-  
-  // Clear all search inputs (safely handle both desktop and mobile)
+
   const allSearchInputs = document.querySelectorAll('.search input, .mobile-search input')
   allSearchInputs.forEach(input => {
     if (input) input.value = ''
@@ -517,10 +461,6 @@ function hideResultsStatus() {
   }
 }
 
-// ============================================================================
-// MOBILE SEARCH OVERLAY
-// ============================================================================
-
 function createMobileSearchOverlay() {
   const overlay = document.createElement('div')
   overlay.className = 'mobile-search-overlay'
@@ -538,16 +478,13 @@ function createMobileSearchOverlay() {
   
   document.body.appendChild(overlay)
   
-  // Set up the mobile search form with all event handlers
   const mobileForm = overlay.querySelector('form.mobile-search')
   if (mobileForm) {
     setupSearchForm(mobileForm)
   }
-  
-  // Close button
+
   overlay.querySelector('.mobile-search-back').addEventListener('click', closeMobileSearch)
-  
-  // Close on overlay click (outside form)
+
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       closeMobileSearch()
@@ -577,10 +514,6 @@ function closeMobileSearch() {
   }
 }
 
-// ============================================================================
-// LAST SEARCH CHIP
-// ============================================================================
-
 function createLastSearchChip() {
   const lastSearch = localStorage.getItem('lastSearch')
   if (!lastSearch || lastSearch.trim() === '') return
@@ -597,11 +530,9 @@ function createLastSearchChip() {
   
   chip.addEventListener('click', (e) => {
     if (e.target.closest('.material-icons')) {
-      // Dismiss chip
       chip.remove()
       localStorage.removeItem('lastSearch')
     } else {
-      // Apply search
       performSearch(lastSearch)
       const searchInput = document.querySelector('.search input')
       if (searchInput) searchInput.value = lastSearch
@@ -614,27 +545,17 @@ function createLastSearchChip() {
   }
 }
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
-
 function init() {
-  // Build search index
   buildSearchIndex()
-  
-  // Initialize search input
   initializeSearchInput()
-  
-  // Mobile search toggle
+
   const searchToggle = document.querySelector('.search-toggle')
   if (searchToggle) {
     searchToggle.addEventListener('click', openMobileSearch)
   }
-  
-  // Create last search chip if exists
+
   createLastSearchChip()
-  
-  // Restore last search if exists
+
   const lastSearch = localStorage.getItem('lastSearch')
   if (lastSearch && lastSearch.trim()) {
     const searchInput = document.querySelector('.search input')
@@ -644,7 +565,6 @@ function init() {
   }
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init)
 } else {
@@ -653,41 +573,7 @@ if (document.readyState === 'loading') {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ============================================================================
-// CONTINUE WATCHING + CLICK-TO-PLAY MODAL (ADD-ON)
-// Paste at bottom of script.js
-// ============================================================================
-
+// modal and watch progress
 (function continueWatchingModalFeature() {
   const STORAGE_KEY = "ytclone_progress_v1";
   const SAVE_EVERY_MS = 2500;
@@ -708,7 +594,6 @@ if (document.readyState === 'loading') {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
     } catch {
-      // ignore quota / storage errors
     }
   }
 
@@ -718,10 +603,8 @@ if (document.readyState === 'loading') {
 
   function extractYouTubeIdFromThumbUrl(url) {
     if (!url) return null;
-    // Typical: https://i.ytimg.com/vi/<ID>/hq720.jpg
     const m = String(url).match(/i\.ytimg\.com\/vi\/([^/]+)\//i);
     if (m && m[1]) return m[1];
-    // Fallback: look for "vi/<ID>"
     const m2 = String(url).match(/\/vi\/([^/]+)/i);
     if (m2 && m2[1]) return m2[1];
     return null;
@@ -753,8 +636,6 @@ if (document.readyState === 'loading') {
     const channel = channelEl ? channelEl.textContent.trim() : "";
     return { title, channel };
   }
-
-  // ---------------- Modal + YouTube API ----------------
 
   let overlayEl = null;
   let ytApiReady = false;
@@ -850,7 +731,6 @@ if (document.readyState === 'loading') {
       tag.dataset.ytIframeApi = "true";
       document.head.appendChild(tag);
 
-      // Safety fallback: resolve after a bit even if callback fails
       setTimeout(() => resolve(), 2500);
     });
   }
@@ -873,11 +753,9 @@ if (document.readyState === 'loading') {
     if (!ytPlayer || !ytApiReady) return;
     try {
       const state = ytPlayer.getPlayerState();
-      // 1 playing, 2 paused
       if (state === 1) ytPlayer.pauseVideo();
       else ytPlayer.playVideo();
     } catch {
-      // ignore
     }
   }
 
@@ -901,7 +779,6 @@ if (document.readyState === 'loading') {
     const saved = map[videoId];
     const startTime = force ? (start ?? 0) : (start ?? (saved?.t ?? 0));
 
-    // Title/meta
     const anyCard = document.querySelector(`[data-video-id="${CSS.escape(videoId)}"]`);
     const { title, channel } = anyCard ? findCardMeta(anyCard) : { title: "Video", channel: "" };
     overlay.querySelector("#pm-title").textContent = title;
@@ -914,7 +791,6 @@ if (document.readyState === 'loading') {
       const mount = document.getElementById("pm-yt");
       if (!mount) return;
 
-      // If API still not ready, fallback to simple iframe (no resume tracking)
       if (!(window.YT && window.YT.Player)) {
         mount.innerHTML = `
           <iframe
@@ -937,12 +813,10 @@ if (document.readyState === 'loading') {
         },
         events: {
           onReady: () => {
-            // Start periodic saving
             if (saveTimer) clearInterval(saveTimer);
             saveTimer = setInterval(() => saveCurrentProgress(), SAVE_EVERY_MS);
           },
           onStateChange: () => {
-            // Save once on pause/end as well
             saveCurrentProgress();
           }
         }
@@ -963,10 +837,8 @@ if (document.readyState === 'loading') {
       map[currentVideoId] = { t, d, updated: Date.now() };
       saveProgressMap(map);
 
-      // Update thumb bar live
       refreshThumbProgressForId(currentVideoId, map[currentVideoId]);
     } catch {
-      // ignore
     }
   }
 
@@ -978,7 +850,6 @@ if (document.readyState === 'loading') {
     }
   }
 
-  // ---------------- Context menu on "more" buttons ----------------
 
   let moreMenuEl = null;
   let moreMenuForId = null;
@@ -1013,7 +884,6 @@ if (document.readyState === 'loading') {
         try {
           await navigator.clipboard.writeText(url);
         } catch {
-          // fallback
           const ta = document.createElement("textarea");
           ta.value = url;
           document.body.appendChild(ta);
@@ -1049,7 +919,6 @@ if (document.readyState === 'loading') {
     menu.style.left = `${left}px`;
     menu.style.top = `${top}px`;
 
-    // Disable Resume if no progress yet
     const map = loadProgressMap();
     const has = !!map[videoId];
     const resumeItem = menu.querySelector('[data-mm="resume"]');
@@ -1066,13 +935,10 @@ if (document.readyState === 'loading') {
     moreMenuForId = null;
   }
 
-  // ---------------- Bind cards + progress bars ----------------
-
   function attachVideoCardHandlers() {
     const allVideoCards = document.querySelectorAll(".video");
     const allShortCards = document.querySelectorAll(".short-item");
 
-    // Videos
     allVideoCards.forEach((card) => {
       if (card.dataset.pmBound === "true") return;
 
@@ -1083,7 +949,6 @@ if (document.readyState === 'loading') {
       card.dataset.videoId = id;
       card.dataset.pmBound = "true";
 
-      // Click on thumbnail/title opens modal
       const openTargets = [
         card.querySelector(".thumbnail"),
         card.querySelector(".title-row p")
@@ -1091,13 +956,11 @@ if (document.readyState === 'loading') {
 
       openTargets.forEach((t) => {
         t.addEventListener("click", (e) => {
-          // Don't hijack "more" button clicks
           if (e.target.closest(".more-btn")) return;
           openModalForVideo(id);
         });
       });
 
-      // More menu
       const moreBtn = card.querySelector(".more-btn");
       if (moreBtn) {
         moreBtn.addEventListener("click", (e) => {
@@ -1108,7 +971,6 @@ if (document.readyState === 'loading') {
       }
     });
 
-    // Shorts
     allShortCards.forEach((card) => {
       if (card.dataset.pmBound === "true") return;
 
@@ -1141,7 +1003,6 @@ if (document.readyState === 'loading') {
   function refreshAllThumbProgress() {
     const map = loadProgressMap();
 
-    // Reset all first
     document.querySelectorAll(".video .thumbnail, .short-item .short-thumb").forEach((c) => {
       setThumbProgress(c, 0);
     });
@@ -1149,13 +1010,10 @@ if (document.readyState === 'loading') {
     Object.entries(map).forEach(([id, data]) => refreshThumbProgressForId(id, data));
   }
 
-  // ---------------- Init ----------------
-
   function init() {
     ensureModal();
     attachVideoCardHandlers();
 
-    // If your page dynamically changes later, this keeps it robust
     const mo = new MutationObserver(() => attachVideoCardHandlers());
     mo.observe(document.body, { childList: true, subtree: true });
   }
