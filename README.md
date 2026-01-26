@@ -1,3 +1,5 @@
+# YouTube UI Clone
+
 A clone of the YouTube interface focusing on layout, styling, and responsiveness.
 
 ## Features
@@ -16,3 +18,4 @@ A clone of the YouTube interface focusing on layout, styling, and responsiveness
 
 ## Live Demo
 https://blakecloneyt.netlify.app/
+
